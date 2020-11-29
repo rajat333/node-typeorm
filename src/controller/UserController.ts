@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {getManager, Connection} from "typeorm";
 import {User } from "../entity/User";
-import { addSkill , getSkill} from './SkillsController';
+import { addSkill , getSkill, removeSkill} from './SkillsController';
 import { addPhoto, getUserPhotos } from  './DocumentController';
 /**
  * Loads all posts from the database.
@@ -19,8 +19,10 @@ export  class UserController {
     async createUser(request: Request, response: Response) {        
         const existUser = await this.getUserById1(request,response);
         if( existUser ){
+            if(request.body.email && request.body.city){
             const updatedUser = await this.updateUser(request.body);
-            request.params.id = updatedUser.id;
+            }
+            request.params.id = existUser.id.toString();
             await this.getUserById(request, response);
         }else{
             const user = new User();
@@ -30,7 +32,7 @@ export  class UserController {
             user.email = request.body.email;
             user.city = request.body.city;
             await this.userRepository.save(user);
-            request.params.id = user.id;
+            request.params.id = user.id.toString();
             await this.getUserById(request, response);
         }
     }
@@ -46,7 +48,6 @@ export  class UserController {
     
     async getUserById1(request: Request, response: Response) {
         // get a post repository to perform operations with post
-        console.log('getUserById1 getUserById1');
         const users = await this.userRepository.createQueryBuilder('user')
         .where("auth0Id = :auth0Id", {
           auth0Id:  request.body.auth0Id,
@@ -80,15 +81,26 @@ export  class UserController {
 
     async uploadPic(request: Request, response: Response){
 
-        console.log('upload pic controller', request.headers['auth0id']);
         request.body.auth0Id = request.headers['auth0id'];
-        console.log('1111111111111');
         const user = await this.getUserById1(request,response);
-        console.log('22222222222');
         await addPhoto(request.body.cover[0], user);
-        console.log('33333333333333333333');
-        request.params.id = user.id;
-        console.log('sending res ');
+        request.params.id = user.id.toString();
         await this.getUserById(request,response);
+    }
+
+    async removeSkill(request: Request, response:Response){
+        const user = await this.getUserById1(request, response);
+        await removeSkill(request.params.skillId);
+        const responseUser =  await this.userRepository.createQueryBuilder('user')
+       .leftJoinAndSelect("user.photos", "photos")
+       .leftJoinAndSelect("user.skills", "skills")
+       .where("user.id = :id", { id: user.id })
+       .getOne();
+       response.json(responseUser);
+    }
+    async checkToken(request: Request, response: Response){
+        response.send({
+          msg: "Your access token was successfully validated!",
+        });
     }
 }

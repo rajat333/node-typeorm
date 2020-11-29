@@ -1,31 +1,43 @@
 import {UserController} from "./controller/UserController"; 
-import { uploadProductImages, resizerImages } from './middleware/userpic-upload';
+import { uploadProductImages, resizerImages, checkToken } from './middleware/userpic-upload';
 
 export const Routes = [{ 
       method: "get", 
       route: "/users", 
-      middleware: [],
+      middleware: [checkToken],
       controller: UserController, action: "getAllUsers" 
    }, { 
       method: "get", 
-      middleware: [],
+      middleware: [checkToken],
       route: "/users/:id", controller: UserController, action: "getUserById" 
    }, { 
       method: "post", 
       route: "/users", 
-      middleware: [],
+      middleware: [checkToken],
       controller: UserController, action: "createUser" 
    },
    { 
     method: "post", 
     route: "/user/skill", 
-    middleware: [],
+    middleware: [checkToken],
     controller: UserController, action: "updateUserSkill" 
    },
    { 
     method: "post", 
     route: "/user/profilePicUpload", 
-    middleware: [uploadProductImages, resizerImages],
+    middleware: [checkToken,uploadProductImages, resizerImages],
     controller: UserController, action: "uploadPic" 
    },
+   { 
+      method: "get", 
+      route: "/api/external", 
+      middleware: [checkToken],
+      controller: UserController, action: "checkToken" 
+    },
+    { 
+      method: "put", 
+      route: "/user/removeSkill/:skillId", 
+      middleware: [checkToken],
+      controller: UserController, action: "removeSkill" 
+    },
 ];

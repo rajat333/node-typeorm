@@ -1,5 +1,9 @@
 const multer = require("multer");
 const MulterSharpResizer = require("multer-sharp-resizer");
+const jwt = require("express-jwt");
+const jwksRsa = require("jwks-rsa");
+const authConfig = require("../auth_config.json");
+
 // Filter files with multer
 const multerFilter = (req, file, cb) => {
     if (file.mimetype.startsWith("image")) {
@@ -9,6 +13,23 @@ const multerFilter = (req, file, cb) => {
     }
   };
   const multerStorage = multer.memoryStorage();
+
+  export const checkToken = (req, res, next)=>{
+    const checkJwt = jwt({
+      secret: jwksRsa.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
+      }),
+      audience: authConfig.audience,
+      issuer: `https://${authConfig.domain}/`,
+      algorithms: ["RS256"]
+    });
+    next();
+  }
+
+ 
 
   export const upload = multer({
     storage: multerStorage,

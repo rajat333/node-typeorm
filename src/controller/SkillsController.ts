@@ -22,3 +22,7 @@ export async function getSkill(userId) {
    
 }
  
+export async function removeSkill(skillId){
+    const skillRepository = getManager().getRepository(Skills);
+    return await skillRepository.delete(skillId);
+}
