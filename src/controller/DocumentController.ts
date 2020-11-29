@@ -8,16 +8,12 @@ export async function addPhoto(photos: any, user: any) {
     const photoArray = [];
     console.log('user_id user_id user ', user);
     for(let i=0; i< sizes.length; i++){
-        
-       console.log('@@@@@@@', photos[sizes[i].path].filename);
-       console.log('#######',photos[sizes[i].path].path);
+
         const photo = await photoRepository.createQueryBuilder('photo')
         .where("s3Key = :s3Key", {
             s3Key:  photos[sizes[i].path].path,
           }).getOne();
-        console.log('photo photo', photo);
         if( ! photo ){
-            console.log('in if if if ');
             const newPhoto = new Photos();
             newPhoto.name= photos[sizes[i].path].filename;
             newPhoto.user_id = user;
@@ -26,8 +22,6 @@ export async function addPhoto(photos: any, user: any) {
             await photoRepository.save(newPhoto);
         }   
     };
-    console.log('for loop closed');
-    // return loaded posts
     return photoArray;
 }
 

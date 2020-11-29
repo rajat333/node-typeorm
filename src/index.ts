@@ -3,11 +3,8 @@ import {createConnection, Connection} from "typeorm";
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import {Request, Response} from "express";
-const multer = require("multer");
-const MulterSharpResizer = require("multer-sharp-resizer");
-
+require('dotenv').config();
 import {Routes} from "./route";
-import {User} from "./entity/User";
 import { Skills } from "./entity/Skills";
 import { Photos } from "./entity/Photos";
 
@@ -41,15 +38,6 @@ createConnection().then(async connection => {
     app.use(bodyParser.json());
     app.use(express.static(`${__dirname}/public`));
     // register all application routes
-    const abc = (req,res,next)=>{
-        console.log('Middleware 1');
-        next();
-    }
-    const pqr = (req,res,next)=>{
-        console.log('Middleware 2');
-        next();
-    }
-    const mid = []
     Routes.forEach(route => { 
     (app as any)[route.method](route.route, 
         route.middleware,
@@ -63,15 +51,10 @@ createConnection().then(async connection => {
      });
     });
     // run app
-    app.listen(3000);
+    app.listen(process.env.PORT || 3001);
 
-    console.log("Express application is up and running on port 3000");
-
+    console.log(`Express application is up and running on port ${process.env.PORT}`);
     console.log("Inserting a new user into the database...");
-    // console.log("Loading users from the database...");
-    // const users = await connection.manager.find(User);
-    // console.log("Loaded users: ", users);
-
     console.log("Here you can setup and run express/koa/any other framework.");
 
 }).catch(error => console.log(error));
