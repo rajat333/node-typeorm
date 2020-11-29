@@ -81,6 +81,7 @@ export  class UserController {
 
     async uploadPic(request: Request, response: Response){
 
+        console.log('In upload Pic ctrl ');
         request.body.auth0Id = request.headers['auth0id'];
         const user = await this.getUserById1(request,response);
         await addPhoto(request.body.cover[0], user);

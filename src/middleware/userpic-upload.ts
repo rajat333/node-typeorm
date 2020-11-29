@@ -6,6 +6,7 @@ const authConfig = require("../auth_config.json");
 
 // Filter files with multer
 const multerFilter = (req, file, cb) => {
+    console.log('multerFilter multerFilter', multerFilter);
     if (file.mimetype.startsWith("image")) {
       cb(null, true);
     } else {
