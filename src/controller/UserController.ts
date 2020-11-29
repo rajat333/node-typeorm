@@ -46,6 +46,7 @@ export  class UserController {
     
     async getUserById1(request: Request, response: Response) {
         // get a post repository to perform operations with post
+        console.log('getUserById1 getUserById1');
         const users = await this.userRepository.createQueryBuilder('user')
         .where("auth0Id = :auth0Id", {
           auth0Id:  request.body.auth0Id,
@@ -68,13 +69,26 @@ export  class UserController {
           }).getOne();     
     }
 
-    async updateUserSkill(request: Request, response: Response){
-        
+    async updateUserSkill(request: Request, response: Response){   
         const user = await this.getUserById1(request,response);
         const newSkills = await addSkill(user.id ,request.body.skillName);
         response.json({
             ...user,
             skills: newSkills,
         })
+    }
+
+    async uploadPic(request: Request, response: Response){
+
+        console.log('upload pic controller', request.headers['auth0id']);
+        request.body.auth0Id = request.headers['auth0id'];
+        console.log('1111111111111');
+        const user = await this.getUserById1(request,response);
+        console.log('22222222222');
+        await addPhoto(request.body.cover[0], user);
+        console.log('33333333333333333333');
+        request.params.id = user.id;
+        console.log('sending res ');
+        await this.getUserById(request,response);
     }
 }

@@ -10,11 +10,12 @@ export class Photos {
     @Column()
     name: string;
 
+    @Column()
+    type: string;
     
     @Column()
     s3Key: string;
 
     @ManyToOne(() => User, user => user.photos)
     user_id: User;
-
 }

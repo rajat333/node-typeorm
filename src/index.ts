@@ -3,6 +3,9 @@ import {createConnection, Connection} from "typeorm";
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import {Request, Response} from "express";
+const multer = require("multer");
+const MulterSharpResizer = require("multer-sharp-resizer");
+
 import {Routes} from "./route";
 import {User} from "./entity/User";
 import { Skills } from "./entity/Skills";
@@ -36,10 +39,21 @@ createConnection().then(async connection => {
 
     const app = express();
     app.use(bodyParser.json());
-
+    app.use(express.static(`${__dirname}/public`));
     // register all application routes
+    const abc = (req,res,next)=>{
+        console.log('Middleware 1');
+        next();
+    }
+    const pqr = (req,res,next)=>{
+        console.log('Middleware 2');
+        next();
+    }
+    const mid = []
     Routes.forEach(route => { 
-    (app as any)[route.method](route.route, (req:   Request, res: Response, next: Function) => { 
+    (app as any)[route.method](route.route, 
+        route.middleware,
+        (req:   Request, res: Response, next: Function) => { 
         const result = (new (route.controller as any))[route.action](req, res, next); 
         if (result instanceof Promise) { 
            result.then(result => result !== null && result !== undefined ? res.send(result) : undefined); 
@@ -48,37 +62,15 @@ createConnection().then(async connection => {
         } 
      });
     });
-    // const route = AppRoutes;
-    // (app as any)[route.method](route.route, (req:   Request, res: Response, next: Function) => { 
-    //     const result = (new (route.controller as any))[route.action](req, res, next); 
-    //     if (result instanceof Promise) { 
-    //        result.then(result => result !== null && result !== undefined ? res.send(result) : undefined); 
-    //     } else if (result !== null && result !== undefined) { 
-    //        .json(result); 
-    //     } 
-    //  });
-
     // run app
     app.listen(3000);
 
     console.log("Express application is up and running on port 3000");
 
     console.log("Inserting a new user into the database...");
-    // const skillAdded = await addSkill(connection);
-    // const photoAdded = await addPhotos(connection);
-    // const user = new User();
-    // user.name = "Timber";
-    // user.profileDescription = "profileDescription";
-    // user.auth0Id = Math.random().toString();
-    // user.email = 'rajattest@yopmail.com'
-    // user.city = 'Test';
-    // user.skills =skillAdded;
-    // user.photos = photoAdded;
-    // await connection.manager.save(user);
-    // console.log("Saved a new user with id: " + user.id);
-    console.log("Loading users from the database...");
-    const users = await connection.manager.find(User);
-    console.log("Loaded users: ", users);
+    // console.log("Loading users from the database...");
+    // const users = await connection.manager.find(User);
+    // console.log("Loaded users: ", users);
 
     console.log("Here you can setup and run express/koa/any other framework.");
 

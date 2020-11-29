@@ -1,22 +1,32 @@
 import {Request, Response} from "express";
 import {getManager} from "typeorm";
 import {Photos } from "../entity/Photos";
-
-export async function addPhoto(photos, user_id = 0) {
+import { sizes } from '../middleware/userpic-upload';
+export async function addPhoto(photos: any, user: any) {
     // get a post repository to perform operations with post
     const photoRepository = getManager().getRepository(Photos);
     const photoArray = [];
-    photos.map( async (e)=>{
-
-        const photo = await photoRepository.find({ s3Key: e.s3Key });
-        if(! photo){
+    console.log('user_id user_id user ', user);
+    for(let i=0; i< sizes.length; i++){
+        
+       console.log('@@@@@@@', photos[sizes[i].path].filename);
+       console.log('#######',photos[sizes[i].path].path);
+        const photo = await photoRepository.createQueryBuilder('photo')
+        .where("s3Key = :s3Key", {
+            s3Key:  photos[sizes[i].path].path,
+          }).getOne();
+        console.log('photo photo', photo);
+        if( ! photo ){
+            console.log('in if if if ');
             const newPhoto = new Photos();
-            newPhoto.name= e.name;
-            newPhoto.s3Key = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+            newPhoto.name= photos[sizes[i].path].filename;
+            newPhoto.user_id = user;
+            newPhoto.type = sizes[i].path;
+            newPhoto.s3Key = photos[sizes[i].path].path;
             await photoRepository.save(newPhoto);
-            photoArray.push(newPhoto);            
         }   
-    });
+    };
+    console.log('for loop closed');
     // return loaded posts
     return photoArray;
 }
